@@ -69,7 +69,7 @@
 #import "ApigeeUIEventSegmentSelected.h"
 #import "ApigeeUIEventSwitchToggled.h"
 #import "NSURLConnection+Apigee.h"
-
+#import "ApigeeCollection.h"
 
 
 static ApigeeMonitoringClient *singletonInstance = nil;
@@ -152,7 +152,7 @@ static bool AmIBeingDebugged(void)
 @property (assign, nonatomic) BOOL alwaysUploadCrashReports;
 
 @property (assign, nonatomic) ApigeeNetworkStatus activeNetworkStatus;
-
+@property (nonatomic,strong) ApigeeCollection* pushCollection;
 
 - (void) retrieveCachedConfig;
 - (BOOL) retrieveServerConfig;
@@ -1791,6 +1791,57 @@ static bool AmIBeingDebugged(void)
         [self establishTimer];
     } else {
         ApigeeLogVerboseMessage(kApigeeMonitoringClientTag,@"Resume called when monitoring is not paused");
+    }
+}
+
+-(void)handleAppLaunchedWithRemotePushNotification:(NSDictionary*)userInfo
+{
+    [self handleRemotePushNotification:userInfo
+                      applicationState:UIApplicationStateInactive];
+}
+
+-(void)handleRemotePushNotification:(NSDictionary*)userInfo
+                   applicationState:(UIApplicationState)applicationState
+{
+    if( userInfo[@"aps"] != nil ) {
+        
+        NSString* appStateAsString = nil;
+        NSString* appWasOpenedByPush = @"YES";
+
+        switch (applicationState) {
+            case UIApplicationStateActive:{
+                appStateAsString = @"active";
+                appWasOpenedByPush = @"NO";
+                break;
+            }
+            case UIApplicationStateBackground:{
+                appStateAsString = @"background";
+                break;
+            }
+            case UIApplicationStateInactive:{
+                appStateAsString = @"inactive";
+                break;
+            }
+        }
+
+        NSDictionary* pushEntityDict = @{@"type"            : @"testpushcollection",
+                                         @"app_state"       : appStateAsString,
+                                         @"opened_app"      : appWasOpenedByPush,
+                                         @"raw_push_data"   : userInfo[@"aps"]};
+
+        self.pushCollection = [[self dataClient] getCollection:@"testpushcollections"
+                                             completionHandler:^(ApigeeClientResponse *response) {
+
+                                                 if( [response completedSuccessfully] )
+                                                 {
+                                                     [[self pushCollection] addEntity:pushEntityDict];
+                                                 }
+
+                                                 NSString* logMessage = [NSString stringWithFormat: @"Remote Notification payload: %@. App State: %@. App opened by push: %@",[userInfo description],appStateAsString,appWasOpenedByPush];
+                                                 
+                                                 ApigeeLogDebugMessage(kApigeeMonitoringClientTag,logMessage);
+                                             }];
+
     }
 }
 

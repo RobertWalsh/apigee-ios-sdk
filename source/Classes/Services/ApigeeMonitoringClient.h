@@ -18,6 +18,8 @@
 #import "ApigeeUploadListener.h"
 #import "ApigeeUIEventListener.h"
 
+@import UIKit.UIApplication;
+
 @class ApigeeAppIdentification;
 @class ApigeeDataClient;
 @class ApigeeMonitoringOptions;
@@ -315,6 +317,11 @@
 
 - (void) injectApigeeHttpHeaders :(NSMutableURLRequest*) mutableRequest;
 
+
+-(void)handleRemotePushNotification:(NSDictionary*)userInfo
+                   applicationState:(UIApplicationState)applicationState;
+
+-(void)handleAppLaunchedWithRemotePushNotification:(NSDictionary*)userInfo;
 
 
 // the following methods are used for auto-capture of network performance
