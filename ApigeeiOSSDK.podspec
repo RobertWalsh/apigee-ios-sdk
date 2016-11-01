@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name             = 'ApigeeiOSSDK'
-  spec.version          = '2.0.21'
+  spec.version          = '2.0.22'
   spec.summary          = 'The iOS SDK for everything Apigee.'
   spec.homepage         = 'https://github.com/apigee/apigee-ios-sdk'
   spec.license          = 'Apache'
@@ -12,6 +12,7 @@ Pod::Spec.new do |spec|
   spec.requires_arc = true
 
   spec.public_header_files  = 'zip/apigee-ios-sdk-' + spec.version.to_s + '/lib/ApigeeiOSSDK.framework/Versions/A/Headers/*.h'
+  spec.source_files = 'zip/apigee-ios-sdk-' + spec.version.to_s + '/lib/ApigeeiOSSDK.framework/Versions/A/Headers/*.h'
   spec.vendored_frameworks  = 'zip/apigee-ios-sdk-' + spec.version.to_s + '/lib/ApigeeiOSSDK.framework'
   spec.preserve_paths       = 'zip/apigee-ios-sdk-' + spec.version.to_s + '/lib/ApigeeiOSSDK.framework'
 
